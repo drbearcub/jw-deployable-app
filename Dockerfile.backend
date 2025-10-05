@@ -1,0 +1,22 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Copy requirements first to leverage Docker cache
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY ./api ./api
+
+# Ensure Python can resolve both top-level and package-relative imports
+ENV PYTHONPATH=/app:/app/api
+
+# Add this environment variable to force unbuffered output
+ENV PYTHONUNBUFFERED=1
+
+# Optional: print environment variable at build time (may be empty if provided at runtime)
+RUN echo "MONGODB_URI at build time: $MONGODB_URI"
+
+# Run as a module so absolute imports like `from api...` resolve correctly
+CMD ["python", "-m", "api.index"]

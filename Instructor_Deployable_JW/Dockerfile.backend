@@ -1,0 +1,19 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Copy requirements first to leverage Docker cache
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application
+COPY ./api ./api
+COPY .env.local .
+
+# Add this environment variable to force unbuffered output
+ENV PYTHONUNBUFFERED=1
+
+# Print environment variables for debugging
+RUN echo "MONGODB_URI: $MONGODB_URI"
+
+CMD ["python", "-u", "api/index.py"] 
